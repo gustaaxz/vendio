@@ -224,7 +224,6 @@ function AppLayout() {
         <Outlet />
       </main>
       <AccessibilityToolbar />
-      <Toaster position="top-right" richColors />
     </div>
   );
 }
