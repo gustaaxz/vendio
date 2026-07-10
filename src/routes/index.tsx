@@ -50,9 +50,14 @@ function Landing() {
             <a href="#planos" className="hover:text-foreground transition">Planos</a>
             <a href="#depoimentos" className="hover:text-foreground transition">Depoimentos</a>
           </nav>
-          <Link to="/dashboard">
-            <Button>Testar demonstração</Button>
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link to="/login">
+              <Button variant="ghost">Entrar</Button>
+            </Link>
+            <Link to="/registro">
+              <Button>Criar conta grátis</Button>
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -71,14 +76,14 @@ function Landing() {
               de roupas, autopeças, assistências técnicas e muito mais.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/dashboard">
+              <Link to="/registro">
                 <Button size="lg" className="shadow-[var(--shadow-glow)]">
-                  Testar demonstração
+                  Começar grátis
                 </Button>
               </Link>
               <a href="#planos">
                 <Button size="lg" variant="outline">
-                  Contratar plano
+                  Ver planos
                 </Button>
               </a>
             </div>
@@ -161,7 +166,7 @@ function Landing() {
                     </li>
                   ))}
                 </ul>
-                <Link to="/dashboard" className="block mt-8">
+                <Link to="/registro" className="block mt-8">
                   <Button className="w-full" variant={p.popular ? "default" : "outline"}>
                     Começar agora
                   </Button>
@@ -198,10 +203,10 @@ function Landing() {
             Pronto para organizar sua loja?
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Teste a demonstração agora — sem cadastro, sem cartão.
+            Crie sua conta em segundos — 14 dias grátis, sem cartão.
           </p>
-          <Link to="/dashboard" className="inline-block mt-8">
-            <Button size="lg" className="shadow-[var(--shadow-glow)]">Entrar na demonstração</Button>
+          <Link to="/registro" className="inline-block mt-8">
+            <Button size="lg" className="shadow-[var(--shadow-glow)]">Criar minha conta</Button>
           </Link>
         </div>
       </section>

@@ -1,7 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { formatBRL, useStore, type Produto } from "@/lib/store";
+import { formatBRL } from "@/lib/utils";
+import {
+  useProducts,
+  useCreateProduct,
+  useUpdateProduct,
+  useDeleteProduct,
+} from "@/lib/api/products";
+import type { Database } from "@/lib/database.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,35 +28,50 @@ export const Route = createFileRoute("/_app/produtos")({
   component: Produtos,
 });
 
+type Produto = Database["public"]["Tables"]["products"]["Row"];
+
 function Produtos() {
-  const { produtos, addProduto, updateProduto, removeProduto } = useStore();
+  const { data: produtos = [], isLoading } = useProducts();
+  const { mutateAsync: addProduto } = useCreateProduct();
+  const { mutateAsync: updateProduto } = useUpdateProduct();
+  const { mutateAsync: removeProduto } = useDeleteProduct();
+
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState<Produto | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const filtered = produtos.filter(
     (p) =>
-      p.nome.toLowerCase().includes(q.toLowerCase()) ||
-      p.categoria.toLowerCase().includes(q.toLowerCase()),
+      p.name.toLowerCase().includes(q.toLowerCase()) ||
+      p.category.toLowerCase().includes(q.toLowerCase()),
   );
 
-  const submit = (form: FormData) => {
+  const submit = async (form: FormData) => {
     const data = {
       nome: String(form.get("nome")),
-      categoria: String(form.get("categoria")),
-      preco: Number(form.get("preco")),
-      estoque: Number(form.get("estoque")),
+      category: String(form.get("categoria")), // update schema mismatch: DB uses "name", "category", "price", "stock"
+      price: Number(form.get("preco")),
+      stock: Number(form.get("estoque")),
     };
-    if (!data.nome || !data.categoria) return toast.error("Preencha nome e categoria");
-    if (edit) {
-      updateProduto(edit.id, data);
-      toast.success("Produto atualizado");
-    } else {
-      addProduto(data);
-      toast.success("Produto cadastrado");
+    if (!data.nome || !data.category) return toast.error("Preencha nome e categoria");
+    
+    setSubmitting(true);
+    try {
+      if (edit) {
+        await updateProduto({ id: edit.id, name: data.nome, ...data });
+        toast.success("Produto atualizado");
+      } else {
+        await addProduto({ name: data.nome, ...data });
+        toast.success("Produto cadastrado");
+      }
+      setOpen(false);
+      setEdit(null);
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao salvar produto");
+    } finally {
+      setSubmitting(false);
     }
-    setOpen(false);
-    setEdit(null);
   };
 
   return (
@@ -83,11 +105,11 @@ function Produtos() {
               >
                 <div>
                   <Label htmlFor="nome">Nome</Label>
-                  <Input id="nome" name="nome" defaultValue={edit?.nome} required />
+                  <Input id="nome" name="nome" defaultValue={edit?.name} required />
                 </div>
                 <div>
                   <Label htmlFor="categoria">Categoria</Label>
-                  <Input id="categoria" name="categoria" defaultValue={edit?.categoria} required />
+                  <Input id="categoria" name="categoria" defaultValue={edit?.category} required />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -97,7 +119,7 @@ function Produtos() {
                       name="preco"
                       type="number"
                       step="0.01"
-                      defaultValue={edit?.preco ?? 0}
+                      defaultValue={edit?.price ?? 0}
                       required
                     />
                   </div>
@@ -107,13 +129,15 @@ function Produtos() {
                       id="estoque"
                       name="estoque"
                       type="number"
-                      defaultValue={edit?.estoque ?? 0}
+                      defaultValue={edit?.stock ?? 0}
                       required
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit">{edit ? "Salvar" : "Cadastrar"}</Button>
+                  <Button type="submit" disabled={submitting}>
+                    {submitting ? "Salvando..." : edit ? "Salvar" : "Cadastrar"}
+                  </Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -145,24 +169,31 @@ function Produtos() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {filtered.map((p) => (
+              {isLoading && (
+                <tr>
+                  <td colSpan={5} className="text-center py-12 text-muted-foreground text-sm">
+                    Carregando produtos...
+                  </td>
+                </tr>
+              )}
+              {!isLoading && filtered.map((p) => (
                 <tr key={p.id} className="hover:bg-secondary/30">
-                  <td className="px-4 py-3 font-medium">{p.nome}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{p.categoria}</td>
+                  <td className="px-4 py-3 font-medium">{p.name}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{p.category}</td>
                   <td className="px-4 py-3 text-right">
                     <span
                       className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium ${
-                        p.estoque > 10
+                        p.stock > 10
                           ? "bg-success/10 text-success"
-                          : p.estoque > 0
+                          : p.stock > 0
                             ? "bg-warning/15 text-warning-foreground"
                             : "bg-destructive/10 text-destructive"
                       }`}
                     >
-                      {p.estoque} un
+                      {p.stock} un
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right font-medium">{formatBRL(p.preco)}</td>
+                  <td className="px-4 py-3 text-right font-medium">{formatBRL(p.price)}</td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-1">
                       <Button
@@ -178,9 +209,15 @@ function Produtos() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => {
-                          removeProduto(p.id);
-                          toast.success("Produto removido");
+                        onClick={async () => {
+                          if (confirm("Excluir produto?")) {
+                            try {
+                              await removeProduto(p.id);
+                              toast.success("Produto removido");
+                            } catch (e: any) {
+                              toast.error(e.message || "Erro ao remover produto");
+                            }
+                          }
                         }}
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
@@ -189,7 +226,7 @@ function Produtos() {
                   </td>
                 </tr>
               ))}
-              {filtered.length === 0 && (
+              {!isLoading && filtered.length === 0 && (
                 <tr>
                   <td colSpan={5} className="text-center py-12 text-muted-foreground text-sm">
                     Nenhum produto encontrado.

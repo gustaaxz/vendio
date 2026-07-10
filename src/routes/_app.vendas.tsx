@@ -1,7 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { formatBRL, useStore, type ItemVenda } from "@/lib/store";
+import { formatBRL } from "@/lib/utils";
+import { useProducts } from "@/lib/api/products";
+import { useCustomers } from "@/lib/api/customers";
+import { useSales, useCreateSale } from "@/lib/api/sales";
+
+export type ItemVenda = {
+  produtoId: string;
+  nome: string;
+  preco: number;
+  quantidade: number;
+};
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,23 +30,28 @@ export const Route = createFileRoute("/_app/vendas")({
 });
 
 function Vendas() {
-  const { produtos, clientes, vendas, addVenda } = useStore();
+  const { data: produtos = [], isLoading: isLoadingProdutos } = useProducts();
+  const { data: clientes = [], isLoading: isLoadingClientes } = useCustomers();
+  const { data: vendas = [], isLoading: isLoadingVendas } = useSales();
+  const { mutateAsync: addVenda } = useCreateSale();
+
   const [q, setQ] = useState("");
   const [clienteId, setClienteId] = useState<string>("avulso");
   const [pagamento, setPagamento] = useState<"dinheiro" | "pix" | "cartao">("pix");
   const [itens, setItens] = useState<ItemVenda[]>([]);
+  const [submitting, setSubmitting] = useState(false);
 
-  const filtered = produtos.filter((p) => p.nome.toLowerCase().includes(q.toLowerCase()));
+  const filtered = produtos.filter((p) => p.name.toLowerCase().includes(q.toLowerCase()));
   const total = useMemo(() => itens.reduce((s, i) => s + i.preco * i.quantidade, 0), [itens]);
 
   const add = (id: string) => {
     const p = produtos.find((x) => x.id === id);
     if (!p) return;
-    if (p.estoque <= 0) return toast.error("Sem estoque");
+    if (p.stock <= 0) return toast.error("Sem estoque");
     setItens((prev) => {
       const ex = prev.find((i) => i.produtoId === id);
       if (ex) {
-        if (ex.quantidade >= p.estoque) {
+        if (ex.quantidade >= p.stock) {
           toast.error("Estoque insuficiente");
           return prev;
         }
@@ -44,7 +59,7 @@ function Vendas() {
           i.produtoId === id ? { ...i, quantidade: i.quantidade + 1 } : i,
         );
       }
-      return [...prev, { produtoId: id, nome: p.nome, preco: p.preco, quantidade: 1 }];
+      return [...prev, { produtoId: id, nome: p.name, preco: p.price, quantidade: 1 }];
     });
   };
 
@@ -57,18 +72,30 @@ function Vendas() {
 
   const rm = (id: string) => setItens((prev) => prev.filter((i) => i.produtoId !== id));
 
-  const finalizar = () => {
+  const finalizar = async () => {
     if (itens.length === 0) return toast.error("Adicione produtos");
     const cliente = clientes.find((c) => c.id === clienteId);
-    addVenda({
-      clienteId: cliente?.id ?? null,
-      clienteNome: cliente?.nome ?? "Cliente avulso",
-      itens,
-      total,
-      pagamento,
-    });
-    toast.success(`Venda de ${formatBRL(total)} registrada`);
-    setItens([]);
+    
+    setSubmitting(true);
+    try {
+      await addVenda({
+        customerId: cliente?.id ?? null,
+        customerName: cliente?.name ?? "Cliente avulso",
+        paymentMethod: pagamento,
+        items: itens.map(i => ({
+          product_id: i.produtoId,
+          product_name: i.nome,
+          quantity: i.quantidade,
+          price: i.preco,
+        }))
+      });
+      toast.success(`Venda de ${formatBRL(total)} registrada`);
+      setItens([]);
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao registrar venda");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -88,21 +115,31 @@ function Vendas() {
             />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-[560px] overflow-y-auto">
-            {filtered.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => add(p.id)}
-                disabled={p.estoque <= 0}
-                className="text-left p-4 rounded-xl border border-border bg-background hover:border-primary hover:shadow-[var(--shadow-soft)] transition disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <div className="text-xs text-muted-foreground">{p.categoria}</div>
-                <div className="font-medium mt-1 line-clamp-2">{p.nome}</div>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="font-semibold text-primary">{formatBRL(p.preco)}</span>
-                  <span className="text-xs text-muted-foreground">{p.estoque}un</span>
-                </div>
-              </button>
-            ))}
+            {isLoadingProdutos ? (
+              <div className="col-span-full py-8 text-center text-sm text-muted-foreground">
+                Carregando produtos...
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="col-span-full py-8 text-center text-sm text-muted-foreground">
+                Nenhum produto encontrado.
+              </div>
+            ) : (
+              filtered.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => add(p.id)}
+                  disabled={p.stock <= 0}
+                  className="text-left p-4 rounded-xl border border-border bg-background hover:border-primary hover:shadow-[var(--shadow-soft)] transition disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <div className="text-xs text-muted-foreground">{p.category}</div>
+                  <div className="font-medium mt-1 line-clamp-2">{p.name}</div>
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="font-semibold text-primary">{formatBRL(p.price)}</span>
+                    <span className="text-xs text-muted-foreground">{p.stock}un</span>
+                  </div>
+                </button>
+              ))
+            )}
           </div>
         </div>
 
@@ -120,7 +157,7 @@ function Vendas() {
                 <SelectContent>
                   <SelectItem value="avulso">Cliente avulso</SelectItem>
                   {clientes.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -178,8 +215,8 @@ function Vendas() {
               <span className="font-semibold">Total</span>
               <span className="text-2xl font-bold text-primary">{formatBRL(total)}</span>
             </div>
-            <Button className="w-full mt-4" size="lg" onClick={finalizar}>
-              Finalizar venda
+            <Button className="w-full mt-4" size="lg" onClick={finalizar} disabled={submitting}>
+              {submitting ? "Finalizando..." : "Finalizar venda"}
             </Button>
           </div>
         </div>
@@ -188,7 +225,9 @@ function Vendas() {
       {/* Histórico */}
       <div className="mt-6 rounded-2xl border border-border bg-card p-6">
         <h3 className="font-semibold mb-4">Últimas vendas</h3>
-        {vendas.length === 0 ? (
+        {isLoadingVendas ? (
+          <p className="text-sm text-muted-foreground text-center py-4">Carregando histórico...</p>
+        ) : vendas.length === 0 ? (
           <p className="text-sm text-muted-foreground">Ainda não há vendas registradas.</p>
         ) : (
           <div className="overflow-x-auto">
@@ -205,10 +244,10 @@ function Vendas() {
               <tbody className="divide-y divide-border">
                 {vendas.slice(0, 10).map((v) => (
                   <tr key={v.id}>
-                    <td className="py-2.5">{new Date(v.data).toLocaleString("pt-BR")}</td>
-                    <td>{v.clienteNome}</td>
-                    <td className="capitalize">{v.pagamento}</td>
-                    <td className="text-right">{v.itens.reduce((s, i) => s + i.quantidade, 0)}</td>
+                    <td className="py-2.5">{new Date(v.created_at).toLocaleString("pt-BR")}</td>
+                    <td>{v.customer_name}</td>
+                    <td className="capitalize">{v.payment_method}</td>
+                    <td className="text-right">{v.items.reduce((s, i) => s + i.quantity, 0)}</td>
                     <td className="text-right font-semibold">{formatBRL(v.total)}</td>
                   </tr>
                 ))}

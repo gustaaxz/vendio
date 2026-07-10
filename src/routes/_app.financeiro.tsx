@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { formatBRL, useStore } from "@/lib/store";
+import { formatBRL } from "@/lib/utils";
+import { useTransactions, useCreateTransaction } from "@/lib/api/transactions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,23 +30,33 @@ export const Route = createFileRoute("/_app/financeiro")({
 });
 
 function Financeiro() {
-  const { movimentos, addMovimento } = useStore();
+  const { data: movimentos = [], isLoading } = useTransactions();
+  const { mutateAsync: addMovimento } = useCreateTransaction();
   const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const { entradas, saidas, saldo } = useMemo(() => {
-    const e = movimentos.filter((m) => m.tipo === "entrada").reduce((s, m) => s + m.valor, 0);
-    const sa = movimentos.filter((m) => m.tipo === "saida").reduce((s, m) => s + m.valor, 0);
+    const e = movimentos.filter((m) => m.type === "entrada").reduce((s, m) => s + m.amount, 0);
+    const sa = movimentos.filter((m) => m.type === "saida").reduce((s, m) => s + m.amount, 0);
     return { entradas: e, saidas: sa, saldo: e - sa };
   }, [movimentos]);
 
-  const submit = (form: FormData) => {
-    const tipo = String(form.get("tipo")) as "entrada" | "saida";
-    const descricao = String(form.get("descricao"));
-    const valor = Number(form.get("valor"));
-    if (!descricao || !valor) return toast.error("Preencha os campos");
-    addMovimento({ tipo, descricao, valor });
-    toast.success("Movimentação registrada");
-    setOpen(false);
+  const submit = async (form: FormData) => {
+    const type = String(form.get("tipo")) as "entrada" | "saida";
+    const description = String(form.get("descricao"));
+    const amount = Number(form.get("valor"));
+    if (!description || !amount) return toast.error("Preencha os campos");
+    
+    setSubmitting(true);
+    try {
+      await addMovimento({ type, description, amount });
+      toast.success("Movimentação registrada");
+      setOpen(false);
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao registrar movimentação");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const cards = [
@@ -96,7 +107,9 @@ function Financeiro() {
                   <Input id="valor" name="valor" type="number" step="0.01" required />
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Registrar</Button>
+                  <Button type="submit" disabled={submitting}>
+                    {submitting ? "Registrando..." : "Registrar"}
+                  </Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -122,7 +135,11 @@ function Financeiro() {
         <div className="p-4 border-b border-border">
           <h3 className="font-semibold">Movimentações</h3>
         </div>
-        {movimentos.length === 0 ? (
+        {isLoading ? (
+          <p className="p-8 text-sm text-muted-foreground text-center">
+            Carregando movimentações...
+          </p>
+        ) : movimentos.length === 0 ? (
           <p className="p-8 text-sm text-muted-foreground text-center">
             Nenhuma movimentação registrada.
           </p>
@@ -139,26 +156,26 @@ function Financeiro() {
             <tbody className="divide-y divide-border">
               {movimentos.map((m) => (
                 <tr key={m.id}>
-                  <td className="px-4 py-3">{new Date(m.data).toLocaleString("pt-BR")}</td>
-                  <td className="px-4 py-3 font-medium">{m.descricao}</td>
+                  <td className="px-4 py-3">{new Date(m.created_at).toLocaleString("pt-BR")}</td>
+                  <td className="px-4 py-3 font-medium">{m.description}</td>
                   <td className="px-4 py-3">
                     <span
                       className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium ${
-                        m.tipo === "entrada"
+                        m.type === "entrada"
                           ? "bg-success/10 text-success"
                           : "bg-destructive/10 text-destructive"
                       }`}
                     >
-                      {m.tipo}
+                      {m.type}
                     </span>
                   </td>
                   <td
                     className={`px-4 py-3 text-right font-semibold ${
-                      m.tipo === "entrada" ? "text-success" : "text-destructive"
+                      m.type === "entrada" ? "text-success" : "text-destructive"
                     }`}
                   >
-                    {m.tipo === "entrada" ? "+" : "-"}
-                    {formatBRL(m.valor)}
+                    {m.type === "entrada" ? "+" : "-"}
+                    {formatBRL(m.amount)}
                   </td>
                 </tr>
               ))}

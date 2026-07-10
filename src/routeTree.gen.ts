@@ -9,14 +9,23 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRegistroRouteImport } from './routes/_auth.registro'
+import { Route as AuthRecuperarSenhaRouteImport } from './routes/_auth.recuperar-senha'
+import { Route as AuthLoginRouteImport } from './routes/_auth.login'
 import { Route as AppVendasRouteImport } from './routes/_app.vendas'
 import { Route as AppProdutosRouteImport } from './routes/_app.produtos'
+import { Route as AppPlanosRouteImport } from './routes/_app.planos'
 import { Route as AppFinanceiroRouteImport } from './routes/_app.financeiro'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppClientesRouteImport } from './routes/_app.clientes'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/_auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppRoute = AppRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
@@ -26,6 +35,21 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRegistroRoute = AuthRegistroRouteImport.update({
+  id: '/registro',
+  path: '/registro',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthRecuperarSenhaRoute = AuthRecuperarSenhaRouteImport.update({
+  id: '/recuperar-senha',
+  path: '/recuperar-senha',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AppVendasRoute = AppVendasRouteImport.update({
   id: '/vendas',
   path: '/vendas',
@@ -34,6 +58,11 @@ const AppVendasRoute = AppVendasRouteImport.update({
 const AppProdutosRoute = AppProdutosRouteImport.update({
   id: '/produtos',
   path: '/produtos',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPlanosRoute = AppPlanosRouteImport.update({
+  id: '/planos',
+  path: '/planos',
   getParentRoute: () => AppRoute,
 } as any)
 const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
@@ -57,26 +86,39 @@ export interface FileRoutesByFullPath {
   '/clientes': typeof AppClientesRoute
   '/dashboard': typeof AppDashboardRoute
   '/financeiro': typeof AppFinanceiroRoute
+  '/planos': typeof AppPlanosRoute
   '/produtos': typeof AppProdutosRoute
   '/vendas': typeof AppVendasRoute
+  '/login': typeof AuthLoginRoute
+  '/recuperar-senha': typeof AuthRecuperarSenhaRoute
+  '/registro': typeof AuthRegistroRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/clientes': typeof AppClientesRoute
   '/dashboard': typeof AppDashboardRoute
   '/financeiro': typeof AppFinanceiroRoute
+  '/planos': typeof AppPlanosRoute
   '/produtos': typeof AppProdutosRoute
   '/vendas': typeof AppVendasRoute
+  '/login': typeof AuthLoginRoute
+  '/recuperar-senha': typeof AuthRecuperarSenhaRoute
+  '/registro': typeof AuthRegistroRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
+  '/_auth': typeof AuthRouteWithChildren
   '/_app/clientes': typeof AppClientesRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/financeiro': typeof AppFinanceiroRoute
+  '/_app/planos': typeof AppPlanosRoute
   '/_app/produtos': typeof AppProdutosRoute
   '/_app/vendas': typeof AppVendasRoute
+  '/_auth/login': typeof AuthLoginRoute
+  '/_auth/recuperar-senha': typeof AuthRecuperarSenhaRoute
+  '/_auth/registro': typeof AuthRegistroRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -85,28 +127,55 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/dashboard'
     | '/financeiro'
+    | '/planos'
     | '/produtos'
     | '/vendas'
+    | '/login'
+    | '/recuperar-senha'
+    | '/registro'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/clientes' | '/dashboard' | '/financeiro' | '/produtos' | '/vendas'
+  to:
+    | '/'
+    | '/clientes'
+    | '/dashboard'
+    | '/financeiro'
+    | '/planos'
+    | '/produtos'
+    | '/vendas'
+    | '/login'
+    | '/recuperar-senha'
+    | '/registro'
   id:
     | '__root__'
     | '/'
     | '/_app'
+    | '/_auth'
     | '/_app/clientes'
     | '/_app/dashboard'
     | '/_app/financeiro'
+    | '/_app/planos'
     | '/_app/produtos'
     | '/_app/vendas'
+    | '/_auth/login'
+    | '/_auth/recuperar-senha'
+    | '/_auth/registro'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
+  AuthRoute: typeof AuthRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app': {
       id: '/_app'
       path: ''
@@ -121,6 +190,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth/registro': {
+      id: '/_auth/registro'
+      path: '/registro'
+      fullPath: '/registro'
+      preLoaderRoute: typeof AuthRegistroRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/recuperar-senha': {
+      id: '/_auth/recuperar-senha'
+      path: '/recuperar-senha'
+      fullPath: '/recuperar-senha'
+      preLoaderRoute: typeof AuthRecuperarSenhaRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/login': {
+      id: '/_auth/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_app/vendas': {
       id: '/_app/vendas'
       path: '/vendas'
@@ -133,6 +223,13 @@ declare module '@tanstack/react-router' {
       path: '/produtos'
       fullPath: '/produtos'
       preLoaderRoute: typeof AppProdutosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/planos': {
+      id: '/_app/planos'
+      path: '/planos'
+      fullPath: '/planos'
+      preLoaderRoute: typeof AppPlanosRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/financeiro': {
@@ -163,6 +260,7 @@ interface AppRouteChildren {
   AppClientesRoute: typeof AppClientesRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppFinanceiroRoute: typeof AppFinanceiroRoute
+  AppPlanosRoute: typeof AppPlanosRoute
   AppProdutosRoute: typeof AppProdutosRoute
   AppVendasRoute: typeof AppVendasRoute
 }
@@ -171,16 +269,42 @@ const AppRouteChildren: AppRouteChildren = {
   AppClientesRoute: AppClientesRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppFinanceiroRoute: AppFinanceiroRoute,
+  AppPlanosRoute: AppPlanosRoute,
   AppProdutosRoute: AppProdutosRoute,
   AppVendasRoute: AppVendasRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface AuthRouteChildren {
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthRecuperarSenhaRoute: typeof AuthRecuperarSenhaRoute
+  AuthRegistroRoute: typeof AuthRegistroRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthLoginRoute: AuthLoginRoute,
+  AuthRecuperarSenhaRoute: AuthRecuperarSenhaRoute,
+  AuthRegistroRoute: AuthRegistroRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
+  AuthRoute: AuthRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

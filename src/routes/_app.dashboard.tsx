@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { formatBRL, useStore } from "@/lib/store";
+import { formatBRL } from "@/lib/utils";
+import { useDashboardStats } from "@/lib/api/dashboard";
+import { useSales } from "@/lib/api/sales";
+import { useTransactions } from "@/lib/api/transactions";
 import {
   Package,
   Users,
@@ -28,18 +31,9 @@ export const Route = createFileRoute("/_app/dashboard")({
 });
 
 function Dashboard() {
-  const { produtos, clientes, vendas, movimentos } = useStore();
-
-  const stats = useMemo(() => {
-    const now = new Date();
-    const doMes = vendas.filter((v) => {
-      const d = new Date(v.data);
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    });
-    const total = doMes.reduce((s, v) => s + v.total, 0);
-    const lucro = total * 0.3;
-    return { totalMes: total, lucro, qtdMes: doMes.length };
-  }, [vendas]);
+  const { data: stats, isLoading: isLoadingStats } = useDashboardStats();
+  const { data: vendas = [], isLoading: isLoadingVendas } = useSales();
+  const { data: movimentos = [], isLoading: isLoadingMovs } = useTransactions();
 
   const vendasPorDia = useMemo(() => {
     const days: Record<string, number> = {};
@@ -50,7 +44,7 @@ function Dashboard() {
       days[key] = 0;
     }
     vendas.forEach((v) => {
-      const d = new Date(v.data);
+      const d = new Date(v.created_at);
       const diff = (Date.now() - d.getTime()) / (1000 * 60 * 60 * 24);
       if (diff <= 7) {
         const key = d.toLocaleDateString("pt-BR", { weekday: "short" });
@@ -62,21 +56,23 @@ function Dashboard() {
 
   const porCategoria = useMemo(() => {
     const map: Record<string, number> = {};
+    // Temporary approximation: the backend doesn't store categories in sale_items right now.
+    // To keep the chart working, we group everything by "Produtos".
+    // In a real scenario, we'd join with the products table or denormalize the category.
     vendas.forEach((v) =>
-      v.itens.forEach((it) => {
-        const prod = produtos.find((p) => p.id === it.produtoId);
-        const cat = prod?.categoria ?? "Outros";
-        map[cat] = (map[cat] ?? 0) + it.quantidade * it.preco;
+      v.items.forEach((it) => {
+        const cat = "Produtos";
+        map[cat] = (map[cat] ?? 0) + it.quantity * it.price;
       }),
     );
     return Object.entries(map).map(([categoria, total]) => ({ categoria, total }));
-  }, [vendas, produtos]);
+  }, [vendas]);
 
   const cards = [
-    { label: "Produtos cadastrados", value: produtos.length, icon: Package, tint: "text-primary" },
-    { label: "Clientes", value: clientes.length, icon: Users, tint: "text-chart-2" },
-    { label: "Vendas do mês", value: stats.qtdMes, icon: ShoppingBag, tint: "text-chart-4" },
-    { label: "Lucro estimado", value: formatBRL(stats.lucro), icon: TrendingUp, tint: "text-success" },
+    { label: "Produtos cadastrados", value: stats?.productsCount ?? 0, icon: Package, tint: "text-primary" },
+    { label: "Clientes", value: stats?.customersCount ?? 0, icon: Users, tint: "text-chart-2" },
+    { label: "Vendas do mês", value: stats?.qtdMes ?? 0, icon: ShoppingBag, tint: "text-chart-4" },
+    { label: "Lucro estimado", value: formatBRL(stats?.lucro ?? 0), icon: TrendingUp, tint: "text-success" },
   ];
 
   return (
@@ -163,27 +159,27 @@ function Dashboard() {
                 <div className="flex items-center gap-3">
                   <div
                     className={`grid h-9 w-9 place-items-center rounded-lg ${
-                      m.tipo === "entrada" ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+                      m.type === "entrada" ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
                     }`}
                   >
-                    {m.tipo === "entrada" ? (
+                    {m.type === "entrada" ? (
                       <ArrowUpRight className="h-4 w-4" />
                     ) : (
                       <ArrowDownRight className="h-4 w-4" />
                     )}
                   </div>
                   <div>
-                    <div className="text-sm font-medium">{m.descricao}</div>
+                    <div className="text-sm font-medium">{m.description}</div>
                     <div className="text-xs text-muted-foreground">
-                      {new Date(m.data).toLocaleString("pt-BR")}
+                      {new Date(m.created_at).toLocaleString("pt-BR")}
                     </div>
                   </div>
                 </div>
                 <div
-                  className={`font-semibold ${m.tipo === "entrada" ? "text-success" : "text-destructive"}`}
+                  className={`font-semibold ${m.type === "entrada" ? "text-success" : "text-destructive"}`}
                 >
-                  {m.tipo === "entrada" ? "+" : "-"}
-                  {formatBRL(m.valor)}
+                  {m.type === "entrada" ? "+" : "-"}
+                  {formatBRL(m.amount)}
                 </div>
               </li>
             ))}

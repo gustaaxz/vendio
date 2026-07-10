@@ -1,7 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { useStore, type Cliente } from "@/lib/store";
+import {
+  useCustomers,
+  useCreateCustomer,
+  useUpdateCustomer,
+  useDeleteCustomer,
+} from "@/lib/api/customers";
+import type { Database } from "@/lib/database.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,35 +27,50 @@ export const Route = createFileRoute("/_app/clientes")({
   component: Clientes,
 });
 
+type Cliente = Database["public"]["Tables"]["customers"]["Row"];
+
 function Clientes() {
-  const { clientes, addCliente, updateCliente, removeCliente } = useStore();
+  const { data: clientes = [], isLoading } = useCustomers();
+  const { mutateAsync: addCliente } = useCreateCustomer();
+  const { mutateAsync: updateCliente } = useUpdateCustomer();
+  const { mutateAsync: removeCliente } = useDeleteCustomer();
+
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState<Cliente | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const filtered = clientes.filter(
     (c) =>
-      c.nome.toLowerCase().includes(q.toLowerCase()) ||
-      c.email.toLowerCase().includes(q.toLowerCase()) ||
-      c.telefone.includes(q),
+      c.name.toLowerCase().includes(q.toLowerCase()) ||
+      (c.email && c.email.toLowerCase().includes(q.toLowerCase())) ||
+      (c.phone && c.phone.includes(q)),
   );
 
-  const submit = (form: FormData) => {
+  const submit = async (form: FormData) => {
     const data = {
-      nome: String(form.get("nome")),
-      telefone: String(form.get("telefone")),
+      name: String(form.get("nome")),
+      phone: String(form.get("telefone")),
       email: String(form.get("email")),
     };
-    if (!data.nome) return toast.error("Informe o nome");
-    if (edit) {
-      updateCliente(edit.id, data);
-      toast.success("Cliente atualizado");
-    } else {
-      addCliente(data);
-      toast.success("Cliente cadastrado");
+    if (!data.name) return toast.error("Informe o nome");
+    
+    setSubmitting(true);
+    try {
+      if (edit) {
+        await updateCliente({ id: edit.id, ...data });
+        toast.success("Cliente atualizado");
+      } else {
+        await addCliente(data);
+        toast.success("Cliente cadastrado");
+      }
+      setOpen(false);
+      setEdit(null);
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao salvar cliente");
+    } finally {
+      setSubmitting(false);
     }
-    setOpen(false);
-    setEdit(null);
   };
 
   return (
@@ -83,18 +104,20 @@ function Clientes() {
               >
                 <div>
                   <Label htmlFor="nome">Nome</Label>
-                  <Input id="nome" name="nome" defaultValue={edit?.nome} required />
+                  <Input id="nome" name="nome" defaultValue={edit?.name} required />
                 </div>
                 <div>
                   <Label htmlFor="telefone">Telefone</Label>
-                  <Input id="telefone" name="telefone" defaultValue={edit?.telefone} />
+                  <Input id="telefone" name="telefone" defaultValue={edit?.phone || ""} />
                 </div>
                 <div>
                   <Label htmlFor="email">Email</Label>
                   <Input id="email" name="email" type="email" defaultValue={edit?.email} />
                 </div>
                 <DialogFooter>
-                  <Button type="submit">{edit ? "Salvar" : "Cadastrar"}</Button>
+                  <Button type="submit" disabled={submitting}>
+                    {submitting ? "Salvando..." : edit ? "Salvar" : "Cadastrar"}
+                  </Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -125,10 +148,17 @@ function Clientes() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {filtered.map((c) => (
+              {isLoading && (
+                <tr>
+                  <td colSpan={4} className="text-center py-12 text-muted-foreground text-sm">
+                    Carregando clientes...
+                  </td>
+                </tr>
+              )}
+              {!isLoading && filtered.map((c) => (
                 <tr key={c.id} className="hover:bg-secondary/30">
-                  <td className="px-4 py-3 font-medium">{c.nome}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{c.telefone || "—"}</td>
+                  <td className="px-4 py-3 font-medium">{c.name}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{c.phone || "—"}</td>
                   <td className="px-4 py-3 text-muted-foreground">{c.email || "—"}</td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-1">
@@ -145,9 +175,15 @@ function Clientes() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => {
-                          removeCliente(c.id);
-                          toast.success("Cliente removido");
+                        onClick={async () => {
+                          if (confirm("Excluir cliente?")) {
+                            try {
+                              await removeCliente(c.id);
+                              toast.success("Cliente removido");
+                            } catch (e: any) {
+                              toast.error(e.message || "Erro ao remover cliente");
+                            }
+                          }
                         }}
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
@@ -156,7 +192,7 @@ function Clientes() {
                   </td>
                 </tr>
               ))}
-              {filtered.length === 0 && (
+              {!isLoading && filtered.length === 0 && (
                 <tr>
                   <td colSpan={4} className="text-center py-12 text-muted-foreground text-sm">
                     Nenhum cliente encontrado.
