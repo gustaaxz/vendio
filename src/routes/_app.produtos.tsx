@@ -82,20 +82,20 @@ function Produtos() {
 
   const submit = async (form: FormData) => {
     const data = {
-      nome: String(form.get("nome")),
-      category: String(form.get("categoria")), // update schema mismatch: DB uses "name", "category", "price", "stock"
+      name: String(form.get("nome")),
+      category: String(form.get("categoria")),
       price: Number(form.get("preco")),
       stock: Number(form.get("estoque")),
     };
-    if (!data.nome || !data.category) return toast.error("Preencha nome e categoria");
+    if (!data.name || !data.category) return toast.error("Preencha nome e categoria");
     
     setSubmitting(true);
     try {
       if (edit) {
-        await updateProduto({ id: edit.id, name: data.nome, ...data });
+        await updateProduto({ id: edit.id, ...data });
         toast.success("Produto atualizado");
       } else {
-        await addProduto({ name: data.nome, ...data });
+        await addProduto(data);
         toast.success("Produto cadastrado");
       }
       setOpen(false);

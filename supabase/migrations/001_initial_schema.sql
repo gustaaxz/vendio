@@ -104,11 +104,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER set_products_updated_at
+CREATE OR REPLACE TRIGGER set_organizations_updated_at
+  BEFORE UPDATE ON public.organizations
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
+
+CREATE OR REPLACE TRIGGER set_products_updated_at
   BEFORE UPDATE ON public.products
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
 
-CREATE TRIGGER set_customers_updated_at
+CREATE OR REPLACE TRIGGER set_customers_updated_at
   BEFORE UPDATE ON public.customers
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
 
@@ -122,16 +126,10 @@ ALTER TABLE public.sales ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sale_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 
--- Helper function: retorna org_ids do usuário logado
-CREATE OR REPLACE FUNCTION public.user_org_ids()
-RETURNS SETOF UUID AS $$
-  SELECT org_id FROM public.org_members WHERE user_id = auth.uid()
-$$ LANGUAGE SQL SECURITY DEFINER STABLE;
-
 -- ---------- organizations ----------
 CREATE POLICY "Members can view their orgs"
   ON public.organizations FOR SELECT
-  USING (id IN (SELECT public.user_org_ids()));
+  USING (id IN (SELECT org_id FROM public.org_members WHERE user_id = auth.uid()));
 
 CREATE POLICY "Owners can update their orgs"
   ON public.organizations FOR UPDATE
@@ -140,11 +138,7 @@ CREATE POLICY "Owners can update their orgs"
 -- ---------- org_members ----------
 CREATE POLICY "Members can view org members"
   ON public.org_members FOR SELECT
-  USING (org_id IN (SELECT public.user_org_ids()));
-
-CREATE POLICY "Owners can manage members"
-  ON public.org_members FOR ALL
-  USING (org_id IN (SELECT om.org_id FROM public.org_members om WHERE om.user_id = auth.uid() AND om.role = 'owner'));
+  USING (user_id = auth.uid());
 
 CREATE POLICY "Users can insert themselves as members"
   ON public.org_members FOR INSERT
@@ -153,7 +147,7 @@ CREATE POLICY "Users can insert themselves as members"
 -- ---------- products ----------
 CREATE POLICY "Members can view products"
   ON public.products FOR SELECT
-  USING (org_id IN (SELECT public.user_org_ids()));
+  USING (org_id IN (SELECT org_id FROM public.org_members WHERE user_id = auth.uid()));
 
 CREATE POLICY "Admin+ can insert products"
   ON public.products FOR INSERT
@@ -170,7 +164,7 @@ CREATE POLICY "Admin+ can delete products"
 -- ---------- customers ----------
 CREATE POLICY "Members can view customers"
   ON public.customers FOR SELECT
-  USING (org_id IN (SELECT public.user_org_ids()));
+  USING (org_id IN (SELECT org_id FROM public.org_members WHERE user_id = auth.uid()));
 
 CREATE POLICY "Admin+ can insert customers"
   ON public.customers FOR INSERT
@@ -187,25 +181,25 @@ CREATE POLICY "Admin+ can delete customers"
 -- ---------- sales ----------
 CREATE POLICY "Members can view sales"
   ON public.sales FOR SELECT
-  USING (org_id IN (SELECT public.user_org_ids()));
+  USING (org_id IN (SELECT org_id FROM public.org_members WHERE user_id = auth.uid()));
 
 CREATE POLICY "Members can insert sales"
   ON public.sales FOR INSERT
-  WITH CHECK (org_id IN (SELECT public.user_org_ids()));
+  WITH CHECK (org_id IN (SELECT org_id FROM public.org_members WHERE user_id = auth.uid()));
 
 -- ---------- sale_items ----------
 CREATE POLICY "Members can view sale items"
   ON public.sale_items FOR SELECT
-  USING (sale_id IN (SELECT s.id FROM public.sales s WHERE s.org_id IN (SELECT public.user_org_ids())));
+  USING (sale_id IN (SELECT s.id FROM public.sales s WHERE s.org_id IN (SELECT org_id FROM public.org_members WHERE user_id = auth.uid())));
 
 CREATE POLICY "Members can insert sale items"
   ON public.sale_items FOR INSERT
-  WITH CHECK (sale_id IN (SELECT s.id FROM public.sales s WHERE s.org_id IN (SELECT public.user_org_ids())));
+  WITH CHECK (sale_id IN (SELECT s.id FROM public.sales s WHERE s.org_id IN (SELECT org_id FROM public.org_members WHERE user_id = auth.uid())));
 
 -- ---------- transactions ----------
 CREATE POLICY "Members can view transactions"
   ON public.transactions FOR SELECT
-  USING (org_id IN (SELECT public.user_org_ids()));
+  USING (org_id IN (SELECT org_id FROM public.org_members WHERE user_id = auth.uid()));
 
 CREATE POLICY "Admin+ can insert transactions"
   ON public.transactions FOR INSERT

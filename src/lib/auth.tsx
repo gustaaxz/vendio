@@ -19,6 +19,7 @@ interface AuthContextType {
   organization: Organization | null;
   membership: OrgMember | null;
   loading: boolean;
+  authError: string | null;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
   signUp: (
@@ -39,11 +40,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [membership, setMembership] = useState<OrgMember | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   // Carregar org do usuário logado
   const loadOrganization = useCallback(async (userId: string) => {
     try {
-      const { data: memberData } = await supabase
+      setAuthError(null);
+      const { data: memberData, error: memberError } = await supabase
         .from("org_members")
         .select("*")
         .eq("user_id", userId)
@@ -54,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (member) {
         setMembership(member);
-        const { data: orgData } = await supabase
+        const { data: orgData, error: orgError } = await supabase
           .from("organizations")
           .select("*")
           .eq("id", member.org_id)
@@ -62,8 +65,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const org = orgData as Organization | null;
         if (org) setOrganization(org);
+        else {
+          setAuthError("Organização não encontrada para o membro.");
+          console.error("Org fetch erro:", orgError);
+        }
+      } else {
+        setAuthError("Membro não encontrado: " + JSON.stringify(memberError));
+        console.error("Member fetch erro:", memberError);
       }
-    } catch {
+    } catch (err: any) {
+      setAuthError("Erro fatal no loadOrganization: " + err.message);
+      console.error(err);
       // O usuário pode não ter org ainda (durante onboarding)
     }
   }, []);
@@ -154,6 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         organization,
         membership,
         loading,
+        authError,
         signIn,
         signInWithGoogle,
         signUp,

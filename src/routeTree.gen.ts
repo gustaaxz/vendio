@@ -16,10 +16,12 @@ import { Route as AuthRegistroRouteImport } from './routes/_auth.registro'
 import { Route as AuthRecuperarSenhaRouteImport } from './routes/_auth.recuperar-senha'
 import { Route as AuthLoginRouteImport } from './routes/_auth.login'
 import { Route as AppVendasRouteImport } from './routes/_app.vendas'
+import { Route as AppRelatoriosRouteImport } from './routes/_app.relatorios'
 import { Route as AppProdutosRouteImport } from './routes/_app.produtos'
 import { Route as AppPlanosRouteImport } from './routes/_app.planos'
 import { Route as AppFinanceiroRouteImport } from './routes/_app.financeiro'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppConfiguracoesRouteImport } from './routes/_app.configuracoes'
 import { Route as AppClientesRouteImport } from './routes/_app.clientes'
 
 const AuthRoute = AuthRouteImport.update({
@@ -55,6 +57,11 @@ const AppVendasRoute = AppVendasRouteImport.update({
   path: '/vendas',
   getParentRoute: () => AppRoute,
 } as any)
+const AppRelatoriosRoute = AppRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppProdutosRoute = AppProdutosRouteImport.update({
   id: '/produtos',
   path: '/produtos',
@@ -75,6 +82,11 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
+const AppConfiguracoesRoute = AppConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppClientesRoute = AppClientesRouteImport.update({
   id: '/clientes',
   path: '/clientes',
@@ -84,10 +96,12 @@ const AppClientesRoute = AppClientesRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/clientes': typeof AppClientesRoute
+  '/configuracoes': typeof AppConfiguracoesRoute
   '/dashboard': typeof AppDashboardRoute
   '/financeiro': typeof AppFinanceiroRoute
   '/planos': typeof AppPlanosRoute
   '/produtos': typeof AppProdutosRoute
+  '/relatorios': typeof AppRelatoriosRoute
   '/vendas': typeof AppVendasRoute
   '/login': typeof AuthLoginRoute
   '/recuperar-senha': typeof AuthRecuperarSenhaRoute
@@ -96,10 +110,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/clientes': typeof AppClientesRoute
+  '/configuracoes': typeof AppConfiguracoesRoute
   '/dashboard': typeof AppDashboardRoute
   '/financeiro': typeof AppFinanceiroRoute
   '/planos': typeof AppPlanosRoute
   '/produtos': typeof AppProdutosRoute
+  '/relatorios': typeof AppRelatoriosRoute
   '/vendas': typeof AppVendasRoute
   '/login': typeof AuthLoginRoute
   '/recuperar-senha': typeof AuthRecuperarSenhaRoute
@@ -111,10 +127,12 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/_auth': typeof AuthRouteWithChildren
   '/_app/clientes': typeof AppClientesRoute
+  '/_app/configuracoes': typeof AppConfiguracoesRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/financeiro': typeof AppFinanceiroRoute
   '/_app/planos': typeof AppPlanosRoute
   '/_app/produtos': typeof AppProdutosRoute
+  '/_app/relatorios': typeof AppRelatoriosRoute
   '/_app/vendas': typeof AppVendasRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/recuperar-senha': typeof AuthRecuperarSenhaRoute
@@ -125,10 +143,12 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/clientes'
+    | '/configuracoes'
     | '/dashboard'
     | '/financeiro'
     | '/planos'
     | '/produtos'
+    | '/relatorios'
     | '/vendas'
     | '/login'
     | '/recuperar-senha'
@@ -137,10 +157,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/clientes'
+    | '/configuracoes'
     | '/dashboard'
     | '/financeiro'
     | '/planos'
     | '/produtos'
+    | '/relatorios'
     | '/vendas'
     | '/login'
     | '/recuperar-senha'
@@ -151,10 +173,12 @@ export interface FileRouteTypes {
     | '/_app'
     | '/_auth'
     | '/_app/clientes'
+    | '/_app/configuracoes'
     | '/_app/dashboard'
     | '/_app/financeiro'
     | '/_app/planos'
     | '/_app/produtos'
+    | '/_app/relatorios'
     | '/_app/vendas'
     | '/_auth/login'
     | '/_auth/recuperar-senha'
@@ -218,6 +242,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppVendasRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/relatorios': {
+      id: '/_app/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof AppRelatoriosRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/produtos': {
       id: '/_app/produtos'
       path: '/produtos'
@@ -246,6 +277,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/configuracoes': {
+      id: '/_app/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof AppConfiguracoesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/clientes': {
       id: '/_app/clientes'
       path: '/clientes'
@@ -258,19 +296,23 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppClientesRoute: typeof AppClientesRoute
+  AppConfiguracoesRoute: typeof AppConfiguracoesRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppFinanceiroRoute: typeof AppFinanceiroRoute
   AppPlanosRoute: typeof AppPlanosRoute
   AppProdutosRoute: typeof AppProdutosRoute
+  AppRelatoriosRoute: typeof AppRelatoriosRoute
   AppVendasRoute: typeof AppVendasRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppClientesRoute: AppClientesRoute,
+  AppConfiguracoesRoute: AppConfiguracoesRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppFinanceiroRoute: AppFinanceiroRoute,
   AppPlanosRoute: AppPlanosRoute,
   AppProdutosRoute: AppProdutosRoute,
+  AppRelatoriosRoute: AppRelatoriosRoute,
   AppVendasRoute: AppVendasRoute,
 }
 

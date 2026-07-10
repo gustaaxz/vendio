@@ -13,10 +13,12 @@ import {
   Loader2,
   Crown,
   Lock,
+  FileText,
 } from "lucide-react";
 import { Toaster } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import { AccessibilityToolbar } from "@/components/AccessibilityToolbar";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
@@ -28,12 +30,13 @@ const nav = [
   { to: "/clientes", label: "Clientes", icon: Users },
   { to: "/vendas", label: "Vendas (PDV)", icon: ShoppingCart },
   { to: "/financeiro", label: "Financeiro", icon: Wallet },
+  { to: "/relatorios", label: "Relatórios", icon: FileText },
 ] as const;
 
 function AppLayout() {
   const loc = useLocation();
   const navigate = useNavigate();
-  const { user, organization, membership, loading, signOut } = useAuth();
+  const { user, organization, membership, loading, signOut, authError } = useAuth();
 
   // Auth guard — redireciona para login se não autenticado
   useEffect(() => {
@@ -89,7 +92,7 @@ function AppLayout() {
             <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary">
               <Store className="h-4 w-4 text-primary-foreground" />
             </div>
-            ShopManager
+            <span className="truncate">{organization?.name || "ShopManager"}</span>
           </Link>
         </div>
 
@@ -157,6 +160,14 @@ function AppLayout() {
           </Link>
 
           <Link
+            to="/configuracoes"
+            className="flex items-center gap-2 px-3 py-2 text-xs text-sidebar-foreground/70 hover:text-white rounded-lg hover:bg-sidebar-accent/30 transition"
+          >
+            <Settings className="h-3.5 w-3.5" />
+            Configurações
+          </Link>
+
+          <Link
             to="/"
             className="flex items-center gap-2 px-3 py-2 text-xs text-sidebar-foreground/70 hover:text-white rounded-lg hover:bg-sidebar-accent/30 transition"
           >
@@ -174,6 +185,11 @@ function AppLayout() {
         </div>
       </aside>
       <main className="flex-1 min-w-0 overflow-x-hidden relative">
+        {authError && (
+          <div className="bg-destructive/15 text-destructive p-4 text-center font-medium border-b border-destructive/20">
+            Erro de Carregamento: {authError}
+          </div>
+        )}
         {isBlocked && loc.pathname !== "/planos" ? (
           <div className="absolute inset-0 z-50 bg-background/80 backdrop-blur-sm grid place-items-center p-6">
             <div className="max-w-md w-full bg-card border shadow-xl rounded-2xl p-8 text-center">
@@ -193,6 +209,7 @@ function AppLayout() {
         ) : null}
         <Outlet />
       </main>
+      <AccessibilityToolbar />
       <Toaster position="top-right" richColors />
     </div>
   );

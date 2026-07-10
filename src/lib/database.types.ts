@@ -20,6 +20,11 @@ export type Database = {
           mp_customer_id: string | null;
           mp_subscription_id: string | null;
           created_at: string;
+          address: string | null;
+          phone: string | null;
+          email: string | null;
+          support_faq: string | null;
+          logo_url: string | null;
         };
         Insert: {
           id?: string;
@@ -31,6 +36,11 @@ export type Database = {
           mp_customer_id?: string | null;
           mp_subscription_id?: string | null;
           created_at?: string;
+          address?: string | null;
+          phone?: string | null;
+          email?: string | null;
+          support_faq?: string | null;
+          logo_url?: string | null;
         };
         Update: {
           id?: string;
@@ -42,6 +52,11 @@ export type Database = {
           mp_customer_id?: string | null;
           mp_subscription_id?: string | null;
           created_at?: string;
+          address?: string | null;
+          phone?: string | null;
+          email?: string | null;
+          support_faq?: string | null;
+          logo_url?: string | null;
         };
       };
       org_members: {
