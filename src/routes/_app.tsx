@@ -14,6 +14,7 @@ import {
   Crown,
   Lock,
   FileText,
+  Bell,
 } from "lucide-react";
 import { Toaster } from "sonner";
 import { useAuth } from "@/lib/auth";
@@ -150,6 +151,19 @@ function AppLayout() {
               </div>
             </div>
           </div>
+
+          <button
+            onClick={() => alert("Você não possui novas notificações no momento.")}
+            className="w-full flex items-center justify-between px-3 py-2 text-xs text-sidebar-foreground/70 hover:text-white rounded-lg hover:bg-sidebar-accent/30 transition"
+          >
+            <div className="flex items-center gap-2">
+              <Bell className="h-3.5 w-3.5" />
+              Notificações
+            </div>
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+              0
+            </span>
+          </button>
 
           <Link
             to="/planos"

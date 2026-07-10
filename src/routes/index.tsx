@@ -11,10 +11,22 @@ import {
   MessageCircle,
   Instagram,
   Facebook,
-
+  Bell,
+  UserCircle,
+  LogOut,
+  Settings,
+  LayoutDashboard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -36,7 +48,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
-  const { session, loading } = useAuth();
+  const { session, loading, signOut } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
@@ -58,9 +70,37 @@ function Landing() {
             {loading ? (
               <div className="h-9 w-24 bg-muted animate-pulse rounded-md" />
             ) : session ? (
-              <Link to="/vendas">
-                <Button>Acessar Painel</Button>
-              </Link>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={() => alert("Você não possui novas notificações.")} className="text-muted-foreground hover:text-foreground">
+                  <Bell className="h-5 w-5" />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="gap-2">
+                      <UserCircle className="h-5 w-5" />
+                      Minha Conta
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuLabel>Menu da Loja</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/vendas" className="flex items-center gap-2 cursor-pointer">
+                        <LayoutDashboard className="h-4 w-4" /> Acessar Painel
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/configuracoes" className="flex items-center gap-2 cursor-pointer">
+                        <Settings className="h-4 w-4" /> Editar Conta
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="text-destructive cursor-pointer flex items-center gap-2" onClick={() => signOut()}>
+                      <LogOut className="h-4 w-4" /> Sair da conta
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             ) : (
               <>
                 <Link to="/login">
