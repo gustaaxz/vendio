@@ -20,6 +20,13 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 
@@ -27,6 +34,32 @@ export const Route = createFileRoute("/_app/produtos")({
   head: () => ({ meta: [{ title: "Produtos — ShopManager" }] }),
   component: Produtos,
 });
+
+const CATEGORIAS = [
+  "Acessórios",
+  "Alimentos",
+  "Automotivo",
+  "Bebidas",
+  "Brinquedos",
+  "Calçados",
+  "Casa e Decoração",
+  "Eletrônicos",
+  "Entretenimento",
+  "Esporte e Lazer",
+  "Ferramentas",
+  "Filmes e Séries",
+  "Higiene e Beleza",
+  "Informática",
+  "Jogos",
+  "Livros e Revistas",
+  "Móveis",
+  "Papelaria",
+  "Pet Shop",
+  "Quintal e Jardim",
+  "Saúde",
+  "Vestuário",
+  "Outros",
+];
 
 type Produto = Database["public"]["Tables"]["products"]["Row"];
 
@@ -109,7 +142,18 @@ function Produtos() {
                 </div>
                 <div>
                   <Label htmlFor="categoria">Categoria</Label>
-                  <Input id="categoria" name="categoria" defaultValue={edit?.category} required />
+                  <Select name="categoria" defaultValue={edit?.category || CATEGORIAS[0]}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione uma categoria..." />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-64">
+                      {CATEGORIAS.map((cat) => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
