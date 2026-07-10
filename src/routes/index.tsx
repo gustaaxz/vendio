@@ -11,8 +11,10 @@ import {
   MessageCircle,
   Instagram,
   Facebook,
+
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -34,6 +36,8 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const { session, loading } = useAuth();
+
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
@@ -51,12 +55,22 @@ function Landing() {
             <a href="#depoimentos" className="hover:text-foreground transition">Depoimentos</a>
           </nav>
           <div className="flex items-center gap-3">
-            <Link to="/login">
-              <Button variant="ghost">Entrar</Button>
-            </Link>
-            <Link to="/registro">
-              <Button>Criar conta grátis</Button>
-            </Link>
+            {loading ? (
+              <div className="h-9 w-24 bg-muted animate-pulse rounded-md" />
+            ) : session ? (
+              <Link to="/vendas">
+                <Button>Acessar Painel</Button>
+              </Link>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="ghost">Entrar</Button>
+                </Link>
+                <Link to="/registro">
+                  <Button>Criar conta grátis</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -76,16 +90,26 @@ function Landing() {
               de roupas, autopeças, assistências técnicas e muito mais.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/registro">
-                <Button size="lg" className="shadow-[var(--shadow-glow)]">
-                  Começar grátis
-                </Button>
-              </Link>
-              <a href="#planos">
-                <Button size="lg" variant="outline">
-                  Ver planos
-                </Button>
-              </a>
+              {session ? (
+                <Link to="/vendas">
+                  <Button size="lg" className="shadow-[var(--shadow-glow)]">
+                    Ir para o meu Painel
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link to="/registro">
+                    <Button size="lg" className="shadow-[var(--shadow-glow)]">
+                      Começar grátis
+                    </Button>
+                  </Link>
+                  <a href="#planos">
+                    <Button size="lg" variant="outline">
+                      Ver planos
+                    </Button>
+                  </a>
+                </>
+              )}
             </div>
             <div className="mt-10 flex flex-wrap gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2"><Check className="h-4 w-4 text-success" /> Sem instalação</div>
