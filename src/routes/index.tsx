@@ -27,6 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -71,7 +72,7 @@ function Landing() {
               <div className="h-9 w-24 bg-muted animate-pulse rounded-md" />
             ) : session ? (
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" onClick={() => alert("Você não possui novas notificações.")} className="text-muted-foreground hover:text-foreground">
+                <Button variant="ghost" size="icon" onClick={() => toast.info("Notificações", { description: "Você não possui novas notificações no momento." })} className="text-muted-foreground hover:text-foreground">
                   <Bell className="h-5 w-5" />
                 </Button>
                 <DropdownMenu>

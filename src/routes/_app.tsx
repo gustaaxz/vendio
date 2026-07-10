@@ -16,7 +16,7 @@ import {
   FileText,
   Bell,
 } from "lucide-react";
-import { Toaster } from "sonner";
+import { Toaster, toast } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { AccessibilityToolbar } from "@/components/AccessibilityToolbar";
@@ -153,7 +153,7 @@ function AppLayout() {
           </div>
 
           <button
-            onClick={() => alert("Você não possui novas notificações no momento.")}
+            onClick={() => toast.info("Notificações", { description: "Você não possui novas notificações no momento." })}
             className="w-full flex items-center justify-between px-3 py-2 text-xs text-sidebar-foreground/70 hover:text-white rounded-lg hover:bg-sidebar-accent/30 transition"
           >
             <div className="flex items-center gap-2">
