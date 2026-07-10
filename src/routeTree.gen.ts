@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthRegistroRouteImport } from './routes/_auth.registro'
 import { Route as AuthRecuperarSenhaRouteImport } from './routes/_auth.recuperar-senha'
 import { Route as AuthLoginRouteImport } from './routes/_auth.login'
 import { Route as AppVendasRouteImport } from './routes/_app.vendas'
@@ -36,11 +35,6 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRegistroRoute = AuthRegistroRouteImport.update({
-  id: '/registro',
-  path: '/registro',
-  getParentRoute: () => AuthRoute,
 } as any)
 const AuthRecuperarSenhaRoute = AuthRecuperarSenhaRouteImport.update({
   id: '/recuperar-senha',
@@ -105,7 +99,6 @@ export interface FileRoutesByFullPath {
   '/vendas': typeof AppVendasRoute
   '/login': typeof AuthLoginRoute
   '/recuperar-senha': typeof AuthRecuperarSenhaRoute
-  '/registro': typeof AuthRegistroRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -119,7 +112,6 @@ export interface FileRoutesByTo {
   '/vendas': typeof AppVendasRoute
   '/login': typeof AuthLoginRoute
   '/recuperar-senha': typeof AuthRecuperarSenhaRoute
-  '/registro': typeof AuthRegistroRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -136,7 +128,6 @@ export interface FileRoutesById {
   '/_app/vendas': typeof AppVendasRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/recuperar-senha': typeof AuthRecuperarSenhaRoute
-  '/_auth/registro': typeof AuthRegistroRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -152,7 +143,6 @@ export interface FileRouteTypes {
     | '/vendas'
     | '/login'
     | '/recuperar-senha'
-    | '/registro'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -166,7 +156,6 @@ export interface FileRouteTypes {
     | '/vendas'
     | '/login'
     | '/recuperar-senha'
-    | '/registro'
   id:
     | '__root__'
     | '/'
@@ -182,7 +171,6 @@ export interface FileRouteTypes {
     | '/_app/vendas'
     | '/_auth/login'
     | '/_auth/recuperar-senha'
-    | '/_auth/registro'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -213,13 +201,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_auth/registro': {
-      id: '/_auth/registro'
-      path: '/registro'
-      fullPath: '/registro'
-      preLoaderRoute: typeof AuthRegistroRouteImport
-      parentRoute: typeof AuthRoute
     }
     '/_auth/recuperar-senha': {
       id: '/_auth/recuperar-senha'
@@ -321,13 +302,11 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 interface AuthRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRecuperarSenhaRoute: typeof AuthRecuperarSenhaRoute
-  AuthRegistroRoute: typeof AuthRegistroRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthRecuperarSenhaRoute: AuthRecuperarSenhaRoute,
-  AuthRegistroRoute: AuthRegistroRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
