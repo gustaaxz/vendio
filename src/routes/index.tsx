@@ -49,7 +49,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
-  const { session, loading, signOut } = useAuth();
+  const { session, loading, signOut, organization } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
@@ -63,9 +63,9 @@ function Landing() {
             ShopManager
           </Link>
           <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-            <a href="#recursos" className="hover:text-foreground transition">Recursos</a>
-            <a href="#planos" className="hover:text-foreground transition">Planos</a>
-            <a href="#depoimentos" className="hover:text-foreground transition">Depoimentos</a>
+            <a href="#recursos" className="hover:text-foreground transition-all duration-300">Recursos</a>
+            <a href="#planos" className="hover:text-foreground transition-all duration-300">Planos</a>
+            <a href="#depoimentos" className="hover:text-foreground transition-all duration-300">Depoimentos</a>
           </nav>
           <div className="flex items-center gap-3">
             {loading ? (
@@ -83,7 +83,7 @@ function Landing() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuLabel>Menu da Loja</DropdownMenuLabel>
+                    <DropdownMenuLabel className="truncate max-w-[11rem]">{organization?.name || "Minha Loja"}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link to="/vendas" className="flex items-center gap-2 cursor-pointer">
@@ -103,14 +103,9 @@ function Landing() {
                 </DropdownMenu>
               </div>
             ) : (
-              <>
-                <Link to="/login">
-                  <Button variant="ghost">Entrar</Button>
-                </Link>
-                <Link to="/registro">
-                  <Button>Criar conta grátis</Button>
-                </Link>
-              </>
+              <Link to="/login">
+                <Button variant="outline" className="transition-all duration-300 hover:scale-105 active:scale-95">Acessar Sistema</Button>
+              </Link>
             )}
           </div>
         </div>
@@ -133,19 +128,19 @@ function Landing() {
             <div className="mt-8 flex flex-wrap gap-3">
               {session ? (
                 <Link to="/vendas">
-                  <Button size="lg" className="shadow-[var(--shadow-glow)]">
+                  <Button size="lg" className="shadow-[var(--shadow-glow)] transition-all duration-300 hover:scale-105 active:scale-95">
                     Ir para o meu Painel
                   </Button>
                 </Link>
               ) : (
                 <>
-                  <Link to="/registro">
-                    <Button size="lg" className="shadow-[var(--shadow-glow)]">
-                      Começar grátis
+                  <Link to="/login">
+                    <Button size="lg" className="shadow-[var(--shadow-glow)] transition-all duration-300 hover:scale-105 active:scale-95">
+                      Acessar minha conta
                     </Button>
                   </Link>
                   <a href="#planos">
-                    <Button size="lg" variant="outline">
+                    <Button size="lg" variant="outline" className="transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-accent/50">
                       Ver planos
                     </Button>
                   </a>
@@ -178,7 +173,7 @@ function Landing() {
               { icon: ShoppingCart, title: "PDV Integrado", desc: "Ponto de venda ágil: selecione cliente, produtos, forma de pagamento e finalize." },
               { icon: Wallet, title: "Financeiro", desc: "Controle de entradas, saídas e movimentações. Exportação para PDF e Excel." },
             ].map((f) => (
-              <div key={f.title} className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-soft)]">
+              <div key={f.title} className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-soft)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
                 <div className="grid h-10 w-10 place-items-center rounded-lg bg-accent text-accent-foreground">
                   <f.icon className="h-5 w-5" />
                 </div>
@@ -207,7 +202,7 @@ function Landing() {
             ].map((p) => (
               <div
                 key={p.nome}
-                className={`relative rounded-2xl border p-8 ${
+                className={`relative rounded-2xl border p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
                   p.popular
                     ? "border-primary bg-card shadow-[var(--shadow-glow)]"
                     : "border-border bg-card shadow-[var(--shadow-soft)]"
@@ -231,11 +226,11 @@ function Landing() {
                     </li>
                   ))}
                 </ul>
-                <Link to="/registro" className="block mt-8">
-                  <Button className="w-full" variant={p.popular ? "default" : "outline"}>
-                    Começar agora
+                <a href="mailto:contato@shopmanager.com" className="block mt-8">
+                  <Button className="w-full transition-all duration-300 hover:scale-[1.02] active:scale-95" variant={p.popular ? "default" : "outline"}>
+                    Falar com um consultor
                   </Button>
-                </Link>
+                </a>
               </div>
             ))}
           </div>
@@ -252,7 +247,7 @@ function Landing() {
               { nome: "Roberto — Autopeças RB", txt: "O PDV é rápido e simples. Meus funcionários aprenderam a usar em um dia." },
               { nome: "Fernanda — Loja Bella", txt: "Os relatórios me mostram exatamente o que vende mais. Aumentei o lucro em 20%." },
             ].map((d) => (
-              <div key={d.nome} className="rounded-2xl border border-border bg-card p-6">
+              <div key={d.nome} className="rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
                 <p className="text-sm leading-relaxed">"{d.txt}"</p>
                 <p className="mt-4 text-sm font-medium text-muted-foreground">{d.nome}</p>
               </div>
@@ -268,11 +263,13 @@ function Landing() {
             Pronto para organizar sua loja?
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Crie sua conta em segundos — 14 dias grátis, sem cartão.
+            O ShopManager é um SaaS de convite fechado. Acesse sua conta.
           </p>
-          <Link to="/registro" className="inline-block mt-8">
-            <Button size="lg" className="shadow-[var(--shadow-glow)]">Criar minha conta</Button>
-          </Link>
+          <div className="mt-8 flex justify-center gap-4">
+            <Link to="/login" className="inline-block">
+              <Button size="lg" className="shadow-[var(--shadow-glow)] transition-all duration-300 hover:scale-105 active:scale-95">Acessar minha conta</Button>
+            </Link>
+          </div>
         </div>
       </section>
 
