@@ -20,12 +20,13 @@ export function OnboardingDialog() {
   const [phone, setPhone] = useState("");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
+  const [created, setCreated] = useState(false);
 
   useEffect(() => {
     if (name) setSlug(slugify(name));
   }, [name]);
 
-  const open = !isLoading && !!user && !store;
+  const open = !isLoading && !!user && !store && !created;
   if (!open) return null;
 
   const submit = async () => {
@@ -45,6 +46,7 @@ export function OnboardingDialog() {
       } as any);
       if (error) throw error;
       await supabase.from("profiles").update({ onboarding_completed: true, phone }).eq("id", user!.id);
+      setCreated(true);
       toast.success("Loja criada com sucesso!");
       qc.invalidateQueries({ queryKey: ["my-store"] });
     } catch (e: any) {
