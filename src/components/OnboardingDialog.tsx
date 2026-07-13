@@ -36,17 +36,20 @@ export function OnboardingDialog() {
     }
     setSaving(true);
     try {
-      const { error } = await supabase.from("stores").insert({
+      const { data: newStore, error } = await supabase.from("stores").insert({
         owner_id: user!.id,
         name: name.trim(),
         slug: slug.trim(),
         phone: phone.trim() || null,
         description: description.trim() || null,
         email: user!.email ?? null,
-      } as any);
+      } as any).select().single();
+      
       if (error) throw error;
+      
       await supabase.from("profiles").update({ onboarding_completed: true, phone }).eq("id", user!.id);
       setCreated(true);
+      qc.setQueryData(["my-store", user!.id], newStore);
       toast.success("Loja criada com sucesso!");
       qc.invalidateQueries({ queryKey: ["my-store"] });
     } catch (e: any) {
