@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMyStore } from "@/hooks/useMyStore";
+import { useAuth } from "@/hooks/useAuth";
 import { useClientes, useClienteMutations, type Cliente } from "@/hooks/useStoreData";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/_authenticated/clientes")({
 
 function ClientesPage() {
   const { data: store } = useMyStore();
+  const { isAdmin } = useAuth();
   const { data: clientes = [] } = useClientes(store?.id);
   const m = useClienteMutations(store?.id);
   const [q, setQ] = useState("");
@@ -39,22 +41,24 @@ function ClientesPage() {
         title="Clientes"
         subtitle={`${clientes.length} clientes`}
         actions={
-          <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
-            <DialogTrigger asChild>
-              <Button onClick={() => setEditing(null)}>
-                <Plus className="h-4 w-4 mr-2" /> Novo cliente
-              </Button>
-            </DialogTrigger>
-            <ClienteForm
-              cliente={editing}
-              onSubmit={async (d) => {
-                if (editing) await m.update.mutateAsync({ id: editing.id, ...d });
-                else await m.add.mutateAsync(d);
-                setOpen(false);
-                setEditing(null);
-              }}
-            />
-          </Dialog>
+          isAdmin ? (
+            <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
+              <DialogTrigger asChild>
+                <Button onClick={() => setEditing(null)}>
+                  <Plus className="h-4 w-4 mr-2" /> Novo cliente
+                </Button>
+              </DialogTrigger>
+              <ClienteForm
+                cliente={editing}
+                onSubmit={async (d) => {
+                  if (editing) await m.update.mutateAsync({ id: editing.id, ...d });
+                  else await m.add.mutateAsync(d);
+                  setOpen(false);
+                  setEditing(null);
+                }}
+              />
+            </Dialog>
+          ) : undefined
         }
       />
       <Input placeholder="Buscar cliente..." value={q} onChange={(e) => setQ(e.target.value)} className="max-w-md" />
@@ -67,28 +71,30 @@ function ClientesPage() {
                 {c.email && <p className="text-xs text-muted-foreground truncate">{c.email}</p>}
                 {c.phone && <p className="text-xs text-muted-foreground">{c.phone}</p>}
               </div>
-              <div className="flex gap-1">
-                <Button size="icon" variant="ghost" onClick={() => { setEditing(c); setOpen(true); }}>
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button size="icon" variant="ghost">
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Remover {c.name}?</AlertDialogTitle>
-                      <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => m.remove.mutate(c.id)}>Remover</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
+              {isAdmin && (
+                <div className="flex gap-1">
+                  <Button size="icon" variant="ghost" onClick={() => { setEditing(c); setOpen(true); }}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="icon" variant="ghost">
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Remover {c.name}?</AlertDialogTitle>
+                        <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => m.remove.mutate(c.id)}>Remover</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}

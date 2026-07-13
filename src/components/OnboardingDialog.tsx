@@ -35,8 +35,6 @@ export function OnboardingDialog() {
     }
     setSaving(true);
     try {
-      // Ensure store_owner role
-      await supabase.from("user_roles").insert({ user_id: user!.id, role: "store_owner" as any });
       const { error } = await supabase.from("stores").insert({
         owner_id: user!.id,
         name: name.trim(),
