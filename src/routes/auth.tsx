@@ -71,7 +71,7 @@ function AuthPage() {
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-background via-background to-primary/10">
       <div className="hidden lg:flex flex-1 items-center justify-center p-12 bg-gradient-to-br from-primary/20 to-transparent">
-        <div className="max-w-md text-center">
+        <div className="max-w-md text-center flex flex-col items-center">
           <BrandMark size={80} />
           <h1 className="mt-6 text-4xl font-bold">Bem-vindo à Vendio</h1>
           <p className="mt-4 text-muted-foreground">
