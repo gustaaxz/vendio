@@ -84,7 +84,7 @@ export function OnboardingDialog() {
               <Input
                 id="lslug"
                 value={slug}
-                onChange={(e) => setSlug(slugify(e.target.value))}
+                disabled
                 placeholder="robux-store"
               />
             </div>

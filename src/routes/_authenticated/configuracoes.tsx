@@ -14,6 +14,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { slugify } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações — Vendio" }] }),
@@ -34,6 +35,7 @@ function ConfigPage() {
     const update: any = { description, phone };
     if (name !== store.name) {
       update.name = name;
+      update.slug = slugify(name);
       update.name_locked = true;
     }
     const { error } = await supabase.from("stores").update(update).eq("id", store.id);
