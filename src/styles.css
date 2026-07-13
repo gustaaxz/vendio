@@ -98,3 +98,9 @@
   background-clip: text;
   color: transparent;
 }
+
+/* Accessibility widget */
+.a11y-hc { filter: contrast(1.4); }
+.a11y-gray { filter: grayscale(1); }
+.a11y-hc.a11y-gray { filter: contrast(1.4) grayscale(1); }
+.a11y-cursor, .a11y-cursor * { cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><path fill='%23000' stroke='%23fff' stroke-width='1.5' d='M4 2l0 22 6-6 4 10 4-2-4-10 8 0z'/></svg>") 4 2, auto !important; }

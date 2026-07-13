@@ -9,26 +9,41 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteImport } from './routes/_auth'
-import { Route as AppRouteImport } from './routes/_app'
+import { Route as MinhasComprasRouteImport } from './routes/minhas-compras'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AdminRouteRouteImport } from './routes/admin/route'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthRecuperarSenhaRouteImport } from './routes/_auth.recuperar-senha'
-import { Route as AuthLoginRouteImport } from './routes/_auth.login'
-import { Route as AppVendasRouteImport } from './routes/_app.vendas'
-import { Route as AppRelatoriosRouteImport } from './routes/_app.relatorios'
-import { Route as AppProdutosRouteImport } from './routes/_app.produtos'
-import { Route as AppPlanosRouteImport } from './routes/_app.planos'
-import { Route as AppFinanceiroRouteImport } from './routes/_app.financeiro'
-import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
-import { Route as AppConfiguracoesRouteImport } from './routes/_app.configuracoes'
-import { Route as AppClientesRouteImport } from './routes/_app.clientes'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
+import { Route as AdminTicketsRouteImport } from './routes/admin/tickets'
+import { Route as AuthenticatedVendasRouteImport } from './routes/_authenticated/vendas'
+import { Route as AuthenticatedSuporteRouteImport } from './routes/_authenticated/suporte'
+import { Route as AuthenticatedProdutosRouteImport } from './routes/_authenticated/produtos'
+import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
+import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
+import { Route as ApiPublicMpWebhookRouteImport } from './routes/api/public/mp/webhook'
+import { Route as ApiPublicMpCheckoutRouteImport } from './routes/api/public/mp/checkout'
 
-const AuthRoute = AuthRouteImport.update({
-  id: '/_auth',
+const MinhasComprasRoute = MinhasComprasRouteImport.update({
+  id: '/minhas-compras',
+  path: '/minhas-compras',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRoute = AppRouteImport.update({
-  id: '/_app',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -36,163 +51,219 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRecuperarSenhaRoute = AuthRecuperarSenhaRouteImport.update({
-  id: '/recuperar-senha',
-  path: '/recuperar-senha',
-  getParentRoute: () => AuthRoute,
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
-const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => AuthRoute,
+const LojaSlugRoute = LojaSlugRouteImport.update({
+  id: '/loja/$slug',
+  path: '/loja/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppVendasRoute = AppVendasRouteImport.update({
+const AdminTicketsRoute = AdminTicketsRouteImport.update({
+  id: '/tickets',
+  path: '/tickets',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AuthenticatedVendasRoute = AuthenticatedVendasRouteImport.update({
   id: '/vendas',
   path: '/vendas',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AppRelatoriosRoute = AppRelatoriosRouteImport.update({
-  id: '/relatorios',
-  path: '/relatorios',
-  getParentRoute: () => AppRoute,
+const AuthenticatedSuporteRoute = AuthenticatedSuporteRouteImport.update({
+  id: '/suporte',
+  path: '/suporte',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AppProdutosRoute = AppProdutosRouteImport.update({
+const AuthenticatedProdutosRoute = AuthenticatedProdutosRouteImport.update({
   id: '/produtos',
   path: '/produtos',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AppPlanosRoute = AppPlanosRouteImport.update({
-  id: '/planos',
-  path: '/planos',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppFinanceiroRoute = AppFinanceiroRouteImport.update({
+const AuthenticatedFinanceiroRoute = AuthenticatedFinanceiroRouteImport.update({
   id: '/financeiro',
   path: '/financeiro',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AppDashboardRoute = AppDashboardRouteImport.update({
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AppConfiguracoesRoute = AppConfiguracoesRouteImport.update({
-  id: '/configuracoes',
-  path: '/configuracoes',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppClientesRoute = AppClientesRouteImport.update({
+const AuthenticatedConfiguracoesRoute =
+  AuthenticatedConfiguracoesRouteImport.update({
+    id: '/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedClientesRoute = AuthenticatedClientesRouteImport.update({
   id: '/clientes',
   path: '/clientes',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ApiPublicMpWebhookRoute = ApiPublicMpWebhookRouteImport.update({
+  id: '/api/public/mp/webhook',
+  path: '/api/public/mp/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicMpCheckoutRoute = ApiPublicMpCheckoutRouteImport.update({
+  id: '/api/public/mp/checkout',
+  path: '/api/public/mp/checkout',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/clientes': typeof AppClientesRoute
-  '/configuracoes': typeof AppConfiguracoesRoute
-  '/dashboard': typeof AppDashboardRoute
-  '/financeiro': typeof AppFinanceiroRoute
-  '/planos': typeof AppPlanosRoute
-  '/produtos': typeof AppProdutosRoute
-  '/relatorios': typeof AppRelatoriosRoute
-  '/vendas': typeof AppVendasRoute
-  '/login': typeof AuthLoginRoute
-  '/recuperar-senha': typeof AuthRecuperarSenhaRoute
+  '/admin': typeof AdminRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/minhas-compras': typeof MinhasComprasRoute
+  '/clientes': typeof AuthenticatedClientesRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/financeiro': typeof AuthenticatedFinanceiroRoute
+  '/produtos': typeof AuthenticatedProdutosRoute
+  '/suporte': typeof AuthenticatedSuporteRoute
+  '/vendas': typeof AuthenticatedVendasRoute
+  '/admin/tickets': typeof AdminTicketsRoute
+  '/loja/$slug': typeof LojaSlugRoute
+  '/admin/': typeof AdminIndexRoute
+  '/api/public/mp/checkout': typeof ApiPublicMpCheckoutRoute
+  '/api/public/mp/webhook': typeof ApiPublicMpWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/clientes': typeof AppClientesRoute
-  '/configuracoes': typeof AppConfiguracoesRoute
-  '/dashboard': typeof AppDashboardRoute
-  '/financeiro': typeof AppFinanceiroRoute
-  '/planos': typeof AppPlanosRoute
-  '/produtos': typeof AppProdutosRoute
-  '/relatorios': typeof AppRelatoriosRoute
-  '/vendas': typeof AppVendasRoute
-  '/login': typeof AuthLoginRoute
-  '/recuperar-senha': typeof AuthRecuperarSenhaRoute
+  '/auth': typeof AuthRoute
+  '/minhas-compras': typeof MinhasComprasRoute
+  '/clientes': typeof AuthenticatedClientesRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/financeiro': typeof AuthenticatedFinanceiroRoute
+  '/produtos': typeof AuthenticatedProdutosRoute
+  '/suporte': typeof AuthenticatedSuporteRoute
+  '/vendas': typeof AuthenticatedVendasRoute
+  '/admin/tickets': typeof AdminTicketsRoute
+  '/loja/$slug': typeof LojaSlugRoute
+  '/admin': typeof AdminIndexRoute
+  '/api/public/mp/checkout': typeof ApiPublicMpCheckoutRoute
+  '/api/public/mp/webhook': typeof ApiPublicMpWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_app': typeof AppRouteWithChildren
-  '/_auth': typeof AuthRouteWithChildren
-  '/_app/clientes': typeof AppClientesRoute
-  '/_app/configuracoes': typeof AppConfiguracoesRoute
-  '/_app/dashboard': typeof AppDashboardRoute
-  '/_app/financeiro': typeof AppFinanceiroRoute
-  '/_app/planos': typeof AppPlanosRoute
-  '/_app/produtos': typeof AppProdutosRoute
-  '/_app/relatorios': typeof AppRelatoriosRoute
-  '/_app/vendas': typeof AppVendasRoute
-  '/_auth/login': typeof AuthLoginRoute
-  '/_auth/recuperar-senha': typeof AuthRecuperarSenhaRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/admin': typeof AdminRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/minhas-compras': typeof MinhasComprasRoute
+  '/_authenticated/clientes': typeof AuthenticatedClientesRoute
+  '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
+  '/_authenticated/produtos': typeof AuthenticatedProdutosRoute
+  '/_authenticated/suporte': typeof AuthenticatedSuporteRoute
+  '/_authenticated/vendas': typeof AuthenticatedVendasRoute
+  '/admin/tickets': typeof AdminTicketsRoute
+  '/loja/$slug': typeof LojaSlugRoute
+  '/admin/': typeof AdminIndexRoute
+  '/api/public/mp/checkout': typeof ApiPublicMpCheckoutRoute
+  '/api/public/mp/webhook': typeof ApiPublicMpWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
+    | '/auth'
+    | '/minhas-compras'
     | '/clientes'
     | '/configuracoes'
     | '/dashboard'
     | '/financeiro'
-    | '/planos'
     | '/produtos'
-    | '/relatorios'
+    | '/suporte'
     | '/vendas'
-    | '/login'
-    | '/recuperar-senha'
+    | '/admin/tickets'
+    | '/loja/$slug'
+    | '/admin/'
+    | '/api/public/mp/checkout'
+    | '/api/public/mp/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
+    | '/minhas-compras'
     | '/clientes'
     | '/configuracoes'
     | '/dashboard'
     | '/financeiro'
-    | '/planos'
     | '/produtos'
-    | '/relatorios'
+    | '/suporte'
     | '/vendas'
-    | '/login'
-    | '/recuperar-senha'
+    | '/admin/tickets'
+    | '/loja/$slug'
+    | '/admin'
+    | '/api/public/mp/checkout'
+    | '/api/public/mp/webhook'
   id:
     | '__root__'
     | '/'
-    | '/_app'
-    | '/_auth'
-    | '/_app/clientes'
-    | '/_app/configuracoes'
-    | '/_app/dashboard'
-    | '/_app/financeiro'
-    | '/_app/planos'
-    | '/_app/produtos'
-    | '/_app/relatorios'
-    | '/_app/vendas'
-    | '/_auth/login'
-    | '/_auth/recuperar-senha'
+    | '/_authenticated'
+    | '/admin'
+    | '/auth'
+    | '/minhas-compras'
+    | '/_authenticated/clientes'
+    | '/_authenticated/configuracoes'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/financeiro'
+    | '/_authenticated/produtos'
+    | '/_authenticated/suporte'
+    | '/_authenticated/vendas'
+    | '/admin/tickets'
+    | '/loja/$slug'
+    | '/admin/'
+    | '/api/public/mp/checkout'
+    | '/api/public/mp/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppRoute: typeof AppRouteWithChildren
-  AuthRoute: typeof AuthRouteWithChildren
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  MinhasComprasRoute: typeof MinhasComprasRoute
+  LojaSlugRoute: typeof LojaSlugRoute
+  ApiPublicMpCheckoutRoute: typeof ApiPublicMpCheckoutRoute
+  ApiPublicMpWebhookRoute: typeof ApiPublicMpWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_auth': {
-      id: '/_auth'
-      path: ''
-      fullPath: '/'
+    '/minhas-compras': {
+      id: '/minhas-compras'
+      path: '/minhas-compras'
+      fullPath: '/minhas-compras'
+      preLoaderRoute: typeof MinhasComprasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app': {
-      id: '/_app'
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof AppRouteImport
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -202,130 +273,140 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/recuperar-senha': {
-      id: '/_auth/recuperar-senha'
-      path: '/recuperar-senha'
-      fullPath: '/recuperar-senha'
-      preLoaderRoute: typeof AuthRecuperarSenhaRouteImport
-      parentRoute: typeof AuthRoute
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
-    '/_auth/login': {
-      id: '/_auth/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof AuthLoginRouteImport
-      parentRoute: typeof AuthRoute
+    '/loja/$slug': {
+      id: '/loja/$slug'
+      path: '/loja/$slug'
+      fullPath: '/loja/$slug'
+      preLoaderRoute: typeof LojaSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/vendas': {
-      id: '/_app/vendas'
+    '/admin/tickets': {
+      id: '/admin/tickets'
+      path: '/tickets'
+      fullPath: '/admin/tickets'
+      preLoaderRoute: typeof AdminTicketsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/_authenticated/vendas': {
+      id: '/_authenticated/vendas'
       path: '/vendas'
       fullPath: '/vendas'
-      preLoaderRoute: typeof AppVendasRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedVendasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_app/relatorios': {
-      id: '/_app/relatorios'
-      path: '/relatorios'
-      fullPath: '/relatorios'
-      preLoaderRoute: typeof AppRelatoriosRouteImport
-      parentRoute: typeof AppRoute
+    '/_authenticated/suporte': {
+      id: '/_authenticated/suporte'
+      path: '/suporte'
+      fullPath: '/suporte'
+      preLoaderRoute: typeof AuthenticatedSuporteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_app/produtos': {
-      id: '/_app/produtos'
+    '/_authenticated/produtos': {
+      id: '/_authenticated/produtos'
       path: '/produtos'
       fullPath: '/produtos'
-      preLoaderRoute: typeof AppProdutosRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedProdutosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_app/planos': {
-      id: '/_app/planos'
-      path: '/planos'
-      fullPath: '/planos'
-      preLoaderRoute: typeof AppPlanosRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/financeiro': {
-      id: '/_app/financeiro'
+    '/_authenticated/financeiro': {
+      id: '/_authenticated/financeiro'
       path: '/financeiro'
       fullPath: '/financeiro'
-      preLoaderRoute: typeof AppFinanceiroRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedFinanceiroRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_app/dashboard': {
-      id: '/_app/dashboard'
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof AppDashboardRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_app/configuracoes': {
-      id: '/_app/configuracoes'
+    '/_authenticated/configuracoes': {
+      id: '/_authenticated/configuracoes'
       path: '/configuracoes'
       fullPath: '/configuracoes'
-      preLoaderRoute: typeof AppConfiguracoesRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_app/clientes': {
-      id: '/_app/clientes'
+    '/_authenticated/clientes': {
+      id: '/_authenticated/clientes'
       path: '/clientes'
       fullPath: '/clientes'
-      preLoaderRoute: typeof AppClientesRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AuthenticatedClientesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/mp/webhook': {
+      id: '/api/public/mp/webhook'
+      path: '/api/public/mp/webhook'
+      fullPath: '/api/public/mp/webhook'
+      preLoaderRoute: typeof ApiPublicMpWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/mp/checkout': {
+      id: '/api/public/mp/checkout'
+      path: '/api/public/mp/checkout'
+      fullPath: '/api/public/mp/checkout'
+      preLoaderRoute: typeof ApiPublicMpCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface AppRouteChildren {
-  AppClientesRoute: typeof AppClientesRoute
-  AppConfiguracoesRoute: typeof AppConfiguracoesRoute
-  AppDashboardRoute: typeof AppDashboardRoute
-  AppFinanceiroRoute: typeof AppFinanceiroRoute
-  AppPlanosRoute: typeof AppPlanosRoute
-  AppProdutosRoute: typeof AppProdutosRoute
-  AppRelatoriosRoute: typeof AppRelatoriosRoute
-  AppVendasRoute: typeof AppVendasRoute
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedClientesRoute: typeof AuthenticatedClientesRoute
+  AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
+  AuthenticatedProdutosRoute: typeof AuthenticatedProdutosRoute
+  AuthenticatedSuporteRoute: typeof AuthenticatedSuporteRoute
+  AuthenticatedVendasRoute: typeof AuthenticatedVendasRoute
 }
 
-const AppRouteChildren: AppRouteChildren = {
-  AppClientesRoute: AppClientesRoute,
-  AppConfiguracoesRoute: AppConfiguracoesRoute,
-  AppDashboardRoute: AppDashboardRoute,
-  AppFinanceiroRoute: AppFinanceiroRoute,
-  AppPlanosRoute: AppPlanosRoute,
-  AppProdutosRoute: AppProdutosRoute,
-  AppRelatoriosRoute: AppRelatoriosRoute,
-  AppVendasRoute: AppVendasRoute,
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedClientesRoute: AuthenticatedClientesRoute,
+  AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,
+  AuthenticatedProdutosRoute: AuthenticatedProdutosRoute,
+  AuthenticatedSuporteRoute: AuthenticatedSuporteRoute,
+  AuthenticatedVendasRoute: AuthenticatedVendasRoute,
 }
 
-const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface AuthRouteChildren {
-  AuthLoginRoute: typeof AuthLoginRoute
-  AuthRecuperarSenhaRoute: typeof AuthRecuperarSenhaRoute
+interface AdminRouteRouteChildren {
+  AdminTicketsRoute: typeof AdminTicketsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
 }
 
-const AuthRouteChildren: AuthRouteChildren = {
-  AuthLoginRoute: AuthLoginRoute,
-  AuthRecuperarSenhaRoute: AuthRecuperarSenhaRoute,
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminTicketsRoute: AdminTicketsRoute,
+  AdminIndexRoute: AdminIndexRoute,
 }
 
-const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AppRoute: AppRouteWithChildren,
-  AuthRoute: AuthRouteWithChildren,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  MinhasComprasRoute: MinhasComprasRoute,
+  LojaSlugRoute: LojaSlugRoute,
+  ApiPublicMpCheckoutRoute: ApiPublicMpCheckoutRoute,
+  ApiPublicMpWebhookRoute: ApiPublicMpWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -8,11 +8,12 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { AuthProvider } from "../lib/auth";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { Toaster } from "sonner";
+import { AuthProvider } from "@/hooks/useAuth";
+import { AccessibilityWidget } from "@/components/AccessibilityWidget";
+
 
 function NotFoundComponent() {
   return (
@@ -79,14 +80,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ShopManager — ERP para pequenos comércios" },
-      { name: "description", content: "Controle sua loja de forma simples e profissional. Estoque, vendas, clientes e financeiro em um único sistema." },
-      { name: "author", content: "ShopManager" },
-      { property: "og:title", content: "ShopManager — ERP para pequenos comércios" },
-      { property: "og:description", content: "Estoque, vendas, clientes e financeiro em um único sistema." },
+      { title: "Vendio — Sistema de gestão para lojas modernas" },
+      { name: "description", content: "Vendio: ERP simples e profissional para pequenos comércios. Estoque, vendas, clientes, financeiro e vitrine online em um só painel." },
+      { name: "author", content: "Vendio" },
+      { property: "og:title", content: "Vendio — Sistema de gestão para lojas modernas" },
+      { property: "og:description", content: "Estoque, vendas, clientes e vitrine online em um só painel." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@ShopManager" },
+      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
@@ -104,7 +105,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="pt-BR" className="scroll-smooth">
+    <html lang="en">
       <head>
         <HeadContent />
       </head>
@@ -122,10 +123,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
-        <Toaster position="top-right" richColors />
+        <AccessibilityWidget />
       </AuthProvider>
     </QueryClientProvider>
   );
 }
+

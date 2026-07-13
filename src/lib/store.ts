@@ -7,6 +7,7 @@ export type Produto = {
   categoria: string;
   preco: number;
   estoque: number;
+  estoqueMinimo: number;
   codigo?: string;
 };
 
@@ -44,6 +45,7 @@ type Store = {
   addProduto: (p: Omit<Produto, "id">) => void;
   updateProduto: (id: string, p: Partial<Produto>) => void;
   removeProduto: (id: string) => void;
+  reporEstoque: (id: string, qtd: number) => void;
   addCliente: (c: Omit<Cliente, "id">) => void;
   updateCliente: (id: string, c: Partial<Cliente>) => void;
   removeCliente: (id: string) => void;
@@ -55,11 +57,11 @@ type Store = {
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 const seedProdutos: Produto[] = [
-  { id: uid(), nome: "Camiseta Básica", categoria: "Vestuário", preco: 49.9, estoque: 32 },
-  { id: uid(), nome: "Caderno Universitário", categoria: "Papelaria", preco: 24.5, estoque: 120 },
-  { id: uid(), nome: "Mouse Sem Fio", categoria: "Informática", preco: 89.9, estoque: 15 },
-  { id: uid(), nome: "Café 500g", categoria: "Alimentos", preco: 22.0, estoque: 60 },
-  { id: uid(), nome: "Fone Bluetooth", categoria: "Informática", preco: 149.0, estoque: 8 },
+  { id: uid(), nome: "Camiseta Básica", categoria: "Vestuário", preco: 49.9, estoque: 32, estoqueMinimo: 10 },
+  { id: uid(), nome: "Caderno Universitário", categoria: "Papelaria", preco: 24.5, estoque: 120, estoqueMinimo: 20 },
+  { id: uid(), nome: "Mouse Sem Fio", categoria: "Informática", preco: 89.9, estoque: 15, estoqueMinimo: 5 },
+  { id: uid(), nome: "Café 500g", categoria: "Alimentos", preco: 22.0, estoque: 60, estoqueMinimo: 15 },
+  { id: uid(), nome: "Fone Bluetooth", categoria: "Informática", preco: 149.0, estoque: 8, estoqueMinimo: 10 },
 ];
 const seedClientes: Cliente[] = [
   { id: uid(), nome: "Maria Souza", telefone: "(11) 98765-4321", email: "maria@email.com" },
@@ -78,6 +80,12 @@ export const useStore = create<Store>()(
       updateProduto: (id, p) =>
         set((s) => ({ produtos: s.produtos.map((x) => (x.id === id ? { ...x, ...p } : x)) })),
       removeProduto: (id) => set((s) => ({ produtos: s.produtos.filter((x) => x.id !== id) })),
+      reporEstoque: (id, qtd) =>
+        set((s) => ({
+          produtos: s.produtos.map((x) =>
+            x.id === id ? { ...x, estoque: x.estoque + qtd } : x,
+          ),
+        })),
       addCliente: (c) => set((s) => ({ clientes: [{ ...c, id: uid() }, ...s.clientes] })),
       updateCliente: (id, c) =>
         set((s) => ({ clientes: s.clientes.map((x) => (x.id === id ? { ...x, ...c } : x)) })),
@@ -105,9 +113,24 @@ export const useStore = create<Store>()(
       reset: () =>
         set({ produtos: seedProdutos, clientes: seedClientes, vendas: [], movimentos: [] }),
     }),
-    { name: "shopmanager-store" },
+    {
+      name: "vendio-store",
+      version: 2,
+      migrate: (persisted: unknown, version) => {
+        const state = (persisted ?? {}) as Partial<Store>;
+        if (version < 2 && state.produtos) {
+          state.produtos = state.produtos.map((p) => ({
+            ...p,
+            estoqueMinimo: p.estoqueMinimo ?? 5,
+          }));
+        }
+        return state as Store;
+      },
+    },
   ),
 );
 
 export const formatBRL = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+export const formatUnidades = (n: number) => `${n} ${n === 1 ? "unidade" : "unidades"}`;
